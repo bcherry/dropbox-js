@@ -5,55 +5,45 @@
   <title>Dropbox JS API</title>
 </head>
 <body>
-  <form id="authenticate-form">
-    <fieldset>
-      <legend>Dropbox creds</legend>
-      <div>
-        <label for="key">app key</label>
-        <input type="text" name="key" id="key" placeholder="app key" />
-      </div>
-
-      <div>
-        <label for="secret">app secret</label>
-        <input type="text" name="secret" id="secret" placeholder="app secret" />
-      </div>
-
-      <div>
-        <label for="email">email</label>
-        <input type="text" name="email" id="email" placeholder="email" />
-      </div>
-
-      <div>
-        <label for="password">password</label>
-        <input type="password" name="password" id="password" placeholder="password" />
-      </div>
-
-      <div>
-        <input type="submit" value="Authenticate" />
-      </div>
-    </fieldset>
-  </form>
-
-  <script src="jquery-1.4.3.js"></script>
-  <script src="oauth.js"></script>
-  <script src="sha1.js"></script>
-  <script src="dropbox.js"></script>
-  <script>
+    <p>
+        <label>
+            Api Key
+            <input type="text" id="key" placeholder="api key" />
+        </label>
+    </p>
+    <p>
+        <label>
+            Api Secret
+            <input type="text" id="secret" placeholder="api secret" />
+        </label>
+    </p>
+    <p>
+        <a id="request_token" href="javascript:void(0);">Request Token</a>
+        <a id="auth_url" href="#">Authorize</a>
+    </p>
+    
+    <script src="jquery-1.4.3.js"></script>
+    <script src="oauth.js"></script>
+    <script src="sha1.js"></script>
+    <script src="dropbox.js"></script>
+    <script>
     $(function() {
-      $("#authenticate-form").submit(function() {
-        var key = $("#key").val(),
-            secret = $("#secret").val(),
-            email = $("#email").val(),
-            password = $("#password").val();
+        $("#request_token").show();
+        $("#auth_url").hide();
+        
+        $("#request_token").click(function() {
+            var key = $("#key").val(),
+                secret = $("#secret").val();
 
-        dropbox.setup(key, secret);
-        dropbox.authenticate(email, password, function() {
-          $("#authenticate-form").remove();
-          console.log("authenticated!");
+            dropbox.setup(key, secret);
+            
+            dropbox.requestToken(function() {
+                $("#request_token").hide();
+                var authUrl = dropbox.getAuthorizeUrl();
+                $("#auth_url").attr("href", authUrl).show();                
+            });
+            return false;
         });
-
-        return false;
-      })
     });
   </script>
 </body>

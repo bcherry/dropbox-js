@@ -1,8 +1,17 @@
+function parseQueryString(qs) {
+    var vars = qs.split("&");
+    var obj = {};
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        obj[pair[0]] = unescape(pair[1]);
+    }
+    return obj;
+}
+
 var dropbox = {
     API_VERSION: "1",
-    SERVER: ".dropbox.com",
-    API_SERVER: "https://api" + SERVER,
-    AUTH_SERVER: "https://www" + SERVER,
+    API_SERVER: "https://api.dropbox.com/",
+    AUTH_SERVER: "https://www.dropbox.com/",
       
     setup: function(consumerKey, consumerSecret) {
         this._consumerKey = consumerKey;
@@ -10,26 +19,37 @@ var dropbox = {
         this._requestCounter = $.now();
     },
   
-    requestToken: function() {
+    requestToken: function(callback) {
         var that = this;
         this._request({
-            url: API_SERVER + "/oauth/request_token",
+            sendAuth: false,
+            url: "/oauth/request_token",
             method: "POST",
             success: function(data) {
                 console.log("request token", data);
+                data = parseQueryString(data);
                 that._oauthToken = data.oauth_token;
                 that._oauthTokenSecret = data.oauth_token_secret;
+                console.log(that._oauthToken);
+                console.log(that._oauthTokenSecret);
+                if (callback) {
+                    callback();
+                }
             },
             error: function(data) {
                 console.error("request token error", data);
             }
         });
     },
+    
+    getAuthorizeUrl: function() {
+        return this.AUTH_SERVER + this.API_VERSION + "/oauth/authorize" + "?oauth_token=" + this._oauthToken;
+    },
   
-    authorize: function() {
+   /* authorize: function() {
         var that = this;
         this._request({
-            url: AUTH_SERVER + "/oauth/authorize",
+            url: AUTH_SERVER + API_VERSION + "/oauth/authorize",
             method: "GET",
             data: {
                 oauth_token: this.oauthToken
@@ -41,12 +61,12 @@ var dropbox = {
                 console.error("authentication error", data);
             }
         });
-    },
+    },*/
     
     accessToken: function() {
         var that = this;
         this._request({
-            url: AUTH_SERVER + "/oauth/access_token",
+            url: "/oauth/access_token",
             method: "POST",
             data: {
                 oauth_token: this._oauthToken,
@@ -65,7 +85,8 @@ var dropbox = {
     
     getInfo: function() {
         this._request({
-            url: API_SERVER + "/account/info", 
+            url: "/account/info",
+            method: "GET",
             success: function(data) {
                 console.log("account info", data);
             },
@@ -79,14 +100,14 @@ var dropbox = {
         var requestId = "dropboxjsonp" + (this._requestCounter++);
         params = $.extend({}, {
             sendAuth: true,
-            method: "GET",
             success: $.noop,
             error: $.noop
         }, req || {});
+        params.url = this.API_SERVER + this.API_VERSION + params.url;
 
-        if (params.sendAuth && !this._accessToken) {
+       /* if (params.sendAuth && !this._accessToken) {
            throw "Authenticated method called before authenticating";
-        }
+        }*/
 
         var message = {
             action: params.url,
@@ -94,7 +115,6 @@ var dropbox = {
             parameters: {
                 oauth_consumer_key: this._consumerKey,
                 oauth_signature_method: "HMAC-SHA1",
-                callback: requestId
             }
         };
 
@@ -114,13 +134,11 @@ var dropbox = {
 
         OAuth.setTimestampAndNonce(message);
         OAuth.SignatureMethod.sign(message, oauthBits);
-
+        
         $.ajax({
-            dataType: "jsonp",
-            method: params.method,
+            type: params.method,
             url: params.url,
             data: OAuth.getParameterMap(message.parameters),
-            jsonpCallback: requestId,
 
             success: params.success,
             error: params.error
