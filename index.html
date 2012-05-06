@@ -5,6 +5,7 @@
   <title>Dropbox JS API</title>
 </head>
 <body>
+    <form id="form">
     <p>
         <label>
             Api Key
@@ -18,29 +19,24 @@
         </label>
     </p>
     <p>
-        <a id="request_token" href="javascript:void(0);">Request Token</a>
-        <a id="auth_url" href="#">Authorize</a>
+        <input type="submit" id="auth" value="Authorize"/>
     </p>
-    
+    </form>    
     <script src="jquery-1.4.3.js"></script>
     <script src="oauth.js"></script>
     <script src="sha1.js"></script>
     <script src="dropbox.js"></script>
     <script>
     $(function() {
-        $("#request_token").show();
-        $("#auth_url").hide();
-        
-        $("#request_token").click(function() {
+        $("#form").submit(function() {
             var key = $("#key").val(),
                 secret = $("#secret").val();
 
             dropbox.setup(key, secret);
             
-            dropbox.requestToken(function() {
-                $("#request_token").hide();
-                var authUrl = dropbox.getAuthorizeUrl();
-                $("#auth_url").attr("href", authUrl).show();                
+            dropbox.getRequestToken(function() {
+                var authUrl = dropbox.getAuthorizeUrl(window.location.href);
+                window.location.href = authUrl;
             });
             return false;
         });

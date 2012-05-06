@@ -19,7 +19,7 @@ var dropbox = {
         this._requestCounter = $.now();
     },
   
-    requestToken: function(callback) {
+    getRequestToken: function(callback) {
         var that = this;
         this._request({
             sendAuth: false,
@@ -30,10 +30,8 @@ var dropbox = {
                 data = parseQueryString(data);
                 that._oauthToken = data.oauth_token;
                 that._oauthTokenSecret = data.oauth_token_secret;
-                console.log(that._oauthToken);
-                console.log(that._oauthTokenSecret);
                 if (callback) {
-                    callback();
+                    callback(data);
                 }
             },
             error: function(data) {
@@ -42,8 +40,13 @@ var dropbox = {
         });
     },
     
-    getAuthorizeUrl: function() {
-        return this.AUTH_SERVER + this.API_VERSION + "/oauth/authorize" + "?oauth_token=" + this._oauthToken;
+    getAuthorizeUrl: function(callback) {
+        var url = this.AUTH_SERVER + this.API_VERSION + "/oauth/authorize"
+               + "?oauth_token=" + this._oauthToken;
+        if (callback) {
+            url += "&oauth_callback=" + callback;
+        }
+        return url;
     },
   
    /* authorize: function() {
@@ -63,7 +66,7 @@ var dropbox = {
         });
     },*/
     
-    accessToken: function() {
+    getAccessToken: function(callback) {
         var that = this;
         this._request({
             url: "/oauth/access_token",
@@ -74,8 +77,13 @@ var dropbox = {
             },
             success: function(data) {
                 console.log("get access token", data);
-                that._accessToken = data.token;
-                that._accessTokenSecret = data.secret;
+                console.log("request token", data);
+                data = parseQueryString(data);
+                that._accessToken = data.oauth_token;
+                that._accessTokenSecret = data.oauth_token_secret;
+                if (callback) {
+                    callback(data);
+                }
             },
             error: function(data) {
                 console.error("get access token error", data);
