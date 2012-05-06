@@ -48,27 +48,12 @@ var dropbox = {
         }
         return url;
     },
-  
-   /* authorize: function() {
-        var that = this;
-        this._request({
-            url: AUTH_SERVER + API_VERSION + "/oauth/authorize",
-            method: "GET",
-            data: {
-                oauth_token: this.oauthToken
-            },
-            success: function(data) {
-                console.log("authentication response", data);
-            },
-            error: function(data) {
-                console.error("authentication error", data);
-            }
-        });
-    },*/
     
     getAccessToken: function(callback) {
         var that = this;
+        console.log(this._oauthToken);
         this._request({
+            sendAuth: false,
             url: "/oauth/access_token",
             method: "POST",
             data: {
@@ -77,7 +62,6 @@ var dropbox = {
             },
             success: function(data) {
                 console.log("get access token", data);
-                console.log("request token", data);
                 data = parseQueryString(data);
                 that._accessToken = data.oauth_token;
                 that._accessTokenSecret = data.oauth_token_secret;
@@ -127,6 +111,8 @@ var dropbox = {
         };
 
         $.extend(message.parameters, params.data);
+        
+        console.log(message.parameters);
 
         if (params.sendAuth) {
             message.parameters.oauth_token = this._accessToken;
@@ -142,6 +128,8 @@ var dropbox = {
 
         OAuth.setTimestampAndNonce(message);
         OAuth.SignatureMethod.sign(message, oauthBits);
+        
+        console.log(OAuth.SignatureMethod.getBaseString(message));
         
         $.ajax({
             type: params.method,
