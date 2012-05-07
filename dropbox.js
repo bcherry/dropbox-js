@@ -28,8 +28,8 @@ var dropbox = {
             success: function(data) {
                 console.log("request token", data);
                 data = parseQueryString(data);
-                that._oauthToken = data.oauth_token;
-                that._oauthTokenSecret = data.oauth_token_secret;
+                that._requestToken = data.oauth_token;
+                that._requestTokenSecret = data.oauth_token_secret;
                 if (callback) {
                     callback(data);
                 }
@@ -42,48 +42,52 @@ var dropbox = {
     
     getAuthorizeUrl: function(callback) {
         var url = this.AUTH_SERVER + this.API_VERSION + "/oauth/authorize"
-               + "?oauth_token=" + this._oauthToken;
+               + "?oauth_token=" + this._requestToken;
         if (callback) {
-            url += "&oauth_callback=" + callback;
+            url += "&oauth_callback=" + encodeURIComponent(callback);
         }
         return url;
     },
     
     getAccessToken: function(callback) {
         var that = this;
-        console.log(this._oauthToken);
+        console.log(this._requestToken);
         this._request({
             sendAuth: false,
             url: "/oauth/access_token",
             method: "POST",
             data: {
-                oauth_token: this._oauthToken,
-                oauth_token_secret: this._oauthTokenSecret
+                oauth_token: this._requestToken,
+                oauth_token_secret: this._requestTokenSecret
             },
             success: function(data) {
-                console.log("get access token", data);
+                console.log("access token", data);
                 data = parseQueryString(data);
                 that._accessToken = data.oauth_token;
                 that._accessTokenSecret = data.oauth_token_secret;
+                that._uid = data.uid;
                 if (callback) {
                     callback(data);
                 }
             },
             error: function(data) {
-                console.error("get access token error", data);
+                console.error("access token error", data);
             }
         });
     },
     
-    getInfo: function() {
+    getAccountInfo: function(callback) {
         this._request({
             url: "/account/info",
             method: "GET",
             success: function(data) {
                 console.log("account info", data);
+                if (callback) {
+                    callback(data);
+                }
             },
-            error: function() {
-                console.log("account info error", arguments);
+            error: function(data) {
+                console.log("account info error", data);
             }
         });
     },
@@ -97,9 +101,9 @@ var dropbox = {
         }, req || {});
         params.url = this.API_SERVER + this.API_VERSION + params.url;
 
-       /* if (params.sendAuth && !this._accessToken) {
+        if (params.sendAuth && !this._accessToken) {
            throw "Authenticated method called before authenticating";
-        }*/
+        }
 
         var message = {
             action: params.url,
@@ -109,33 +113,26 @@ var dropbox = {
                 oauth_signature_method: "HMAC-SHA1",
             }
         };
-
         $.extend(message.parameters, params.data);
-        
-        console.log(message.parameters);
-
         if (params.sendAuth) {
             message.parameters.oauth_token = this._accessToken;
         }
-
-        var oauthBits = {
-            consumerSecret: this._consumerSecret
-        };
-
-        if (params.sendAuth) {
-            oauthBits.tokenSecret = this._accessTokenSecret;
-        }
-
-        OAuth.setTimestampAndNonce(message);
-        OAuth.SignatureMethod.sign(message, oauthBits);
         
-        console.log(OAuth.SignatureMethod.getBaseString(message));
+        var accessor = {
+            consumerSecret: this._consumerSecret,
+            tokenSecret: this._requestTokenSecret
+        };
+        if (params.sendAuth) {
+            accessor.tokenSecret = this._accessTokenSecret;
+        }
+        
+        OAuth.setTimestampAndNonce(message);
+        OAuth.SignatureMethod.sign(message, accessor);
         
         $.ajax({
             type: params.method,
             url: params.url,
             data: OAuth.getParameterMap(message.parameters),
-
             success: params.success,
             error: params.error
         });
