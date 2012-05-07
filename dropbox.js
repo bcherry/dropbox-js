@@ -14,7 +14,7 @@ var dropbox = {
     API_CONTENT_HOST: "https://api-content.dropbox.com/",
     AUTH_HOST: "https://www.dropbox.com/",
       
-    setup: function(consumerKey, consumerSecret, accessType) {
+    setup: function(consumerKey, consumerSecret, accessType, locale) {
         this._consumerKey = consumerKey;
         this._consumerSecret = consumerSecret;
         this._requestCounter = $.now();
@@ -24,14 +24,16 @@ var dropbox = {
         else {
             this.root = "sandbox";
         }
+        if (locale) {
+            this.locale = locale;
+        }
     },
   
-    requestToken: function(callback) {
+    requestToken: function(callback, errorCallback) {
         var that = this;
         this._request({
             sendAuth: false,
             url: "/oauth/request_token",
-            dataType: "text",
             method: "POST",
             success: function(data) {
                 console.log("request token", data);
@@ -44,11 +46,14 @@ var dropbox = {
             },
             error: function(data) {
                 console.error("request token error", data);
+                if (errorCallback) {
+                    errorCallback(data);
+                }
             }
         });
     },
     
-    authorizeUrl: function(callback) {
+    authorizeUrl: function(callback, errorCallback) {
         var url = this.AUTH_HOST + this.API_VERSION + "/oauth/authorize"
                + "?oauth_token=" + this._requestToken;
         if (callback) {
@@ -57,14 +62,13 @@ var dropbox = {
         return url;
     },
     
-    accessToken: function(callback) {
+    accessToken: function(callback, errorCallback) {
         var that = this;
         console.log(this._requestToken);
         this._request({
             sendAuth: false,
             url: "/oauth/access_token",
             method: "POST",
-            dataType: "text",
             success: function(data) {
                 console.log("access token", data);
                 data = parseQueryString(data);
@@ -77,14 +81,18 @@ var dropbox = {
             },
             error: function(data) {
                 console.error("access token error", data);
+                if (errorCallback) {
+                    errorCallback(data);
+                }
             }
         });
     },
     
-    accountInfo: function(callback) {
+    accountInfo: function(callback, errorCallback) {
         this._request({
             url: "/account/info",
             method: "GET",
+            dataType: "json",
             success: function(data) {
                 console.log("account info", data);
                 if (callback) {
@@ -93,6 +101,9 @@ var dropbox = {
             },
             error: function(data) {
                 console.log("account info error", data);
+                if (errorCallback) {
+                    errorCallback(data);
+                }
             }
         });
     },
@@ -101,6 +112,7 @@ var dropbox = {
         this._request({
             url: "/metadata/" + this.root + path ,
             method: "GET",
+            dataType: "json",
             success: function(data) {
                 console.log("metadata", data);
                 if (callback) {
@@ -121,6 +133,7 @@ var dropbox = {
             host: this.API_CONTENT_HOST,
             url: "/files_put/" + this.root + path,
             method: "PUT",
+            dataType: "json",
             contentType: "text/plain",
             headers: {
                 "Content-Length": body.length
@@ -141,11 +154,281 @@ var dropbox = {
         });
     },
     
+    get: function(path, callback, errorCallback) {
+        this._request({
+            host: this.API_CONTENT_HOST,
+            url: "/files/" + this.root + path,
+            method: "GET",
+            success: function(data) {
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
     
+    search: function(path, query, callback, errorCallback) {
+        this._request({
+            url: "/search/" + this.root + path,
+            method: "GET",
+            dataType: "json",
+            data: {
+                query: query
+            },
+            success: function(data) {
+                console.log("search", data);
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    shares: function(path, callback, errorCallback) {
+        this._request({
+            url: "/shares/" + this.root + path,
+            method: "POST",
+            dataType: "json",
+            success: function(data) {
+                console.log("shares", data);
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    media: function(path, callback, errorCallback) {
+        this._request({
+            url: "/media/" + this.root + path,
+            method: "POST",
+            dataType: "json",
+            success: function(data) {
+                console.log("media", data);
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    delta: function(cursor, callback, errorCallback) {
+        this._request({
+            url: "/delta",
+            method: "POST",
+            dataType: "json",
+            data: {
+                cursor: cursor
+            },
+            success: function(data) {
+                console.log("delta", data);
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    revisions: function(path, callback, errorCallback) {
+        this._request({
+            url: "/revisions/" + this.root + path,
+            method: "GET",
+            dataType: "json",
+            success: function(data) {
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    restore: function(path, rev, callback, errorCallback) {
+        this._request({
+            url: "/restore/" + this.root + path,
+            method: "POST",
+            dataType: "json",
+            data: {
+                rev: rev
+            },
+            success: function(data) {
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    copyRef: function(path, callback, errorCallback) {
+        this._request({
+            url: "/copy_ref/" + this.root + path,
+            method: "GET",
+            dataType: "json",
+            success: function(data) {
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    thumbnails: function(path, format, size, callback, errorCallback) {
+        this._request({
+            url: "/thumbnails/" + this.root + path,
+            method: "GET",
+            data: {
+                format: format,
+                size: size  
+            },
+            success: function(data) {
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    cp: function(root, fromPath, toPath, callback, errorCallback) {
+        this._request({
+            url: "/fileops/copy",
+            method: "POST",
+            data: {
+                root: root,
+                from_path: fromPath,
+                to_path: toPath
+            },
+            dataType: "json",
+            success: function(data) {
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    mv: function(root, fromPath, toPath, callback, errorCallback) {
+        this._request({
+            url: "/fileops/move",
+            method: "POST",
+            data: {
+                root: root,
+                from_path: fromPath,
+                to_path: toPath
+            },
+            dataType: "json",
+            success: function(data) {
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    mkdir: function(root, path, callback, errorCallback) {
+        this._request({
+            url: "/fileops/create_folder",
+            method: "POST",
+            data: {
+                root: root,
+                path: path
+            },
+            dataType: "json",
+            success: function(data) {
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    rm: function(root, path, callback, errorCallback) {
+        this._request({
+            url: "/fileops/delete",
+            method: "POST",
+            data: {
+                root: root,
+                path: path
+            },
+            dataType: "json",
+            success: function(data) {
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
     
     _request: function(options) {
         var requestId = "dropboxjsonp" + (this._requestCounter++);
         // default options
+        if (this.locale) {
+            $.extend(params.data, {locale: this.locale});
+        }
+        
         params = $.extend({}, {
             host: this.API_HOST,
             apiVersion: this.API_VERSION,
@@ -153,7 +436,6 @@ var dropbox = {
             headers: {},
             success: $.noop,
             error: $.noop,
-            dataType: "json",
             contentType: "application/x-www-form-urlencoded",
         }, options || {});
         if (params.sendAuth && !this._accessToken) {
