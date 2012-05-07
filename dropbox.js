@@ -13,13 +13,19 @@ var dropbox = {
     API_SERVER: "https://api.dropbox.com/",
     AUTH_SERVER: "https://www.dropbox.com/",
       
-    setup: function(consumerKey, consumerSecret) {
+    setup: function(consumerKey, consumerSecret, accessType) {
         this._consumerKey = consumerKey;
         this._consumerSecret = consumerSecret;
         this._requestCounter = $.now();
+        if (accessType == "dropbox") {
+            this.root = "dropbox";
+        }
+        else {
+            this.root = "sandbox";
+        }
     },
   
-    getRequestToken: function(callback) {
+    requestToken: function(callback) {
         var that = this;
         this._request({
             sendAuth: false,
@@ -40,7 +46,7 @@ var dropbox = {
         });
     },
     
-    getAuthorizeUrl: function(callback) {
+    authorizeUrl: function(callback) {
         var url = this.AUTH_SERVER + this.API_VERSION + "/oauth/authorize"
                + "?oauth_token=" + this._requestToken;
         if (callback) {
@@ -49,7 +55,7 @@ var dropbox = {
         return url;
     },
     
-    getAccessToken: function(callback) {
+    accessToken: function(callback) {
         var that = this;
         console.log(this._requestToken);
         this._request({
@@ -76,10 +82,11 @@ var dropbox = {
         });
     },
     
-    getAccountInfo: function(callback) {
+    accountInfo: function(callback) {
         this._request({
             url: "/account/info",
             method: "GET",
+            dataType: "json",
             success: function(data) {
                 console.log("account info", data);
                 if (callback) {
@@ -91,7 +98,27 @@ var dropbox = {
             }
         });
     },
-
+    
+    metadata: function(path, callback, errorCallback) {
+        this._request({
+            url: "/metadata/" + this.root + path ,
+            method: "GET",
+            dataType: "json",
+            success: function(data) {
+                console.log("metadata", data);
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                console.error("metadata error", data);
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
     _request: function(req) {
         var requestId = "dropboxjsonp" + (this._requestCounter++);
         params = $.extend({}, {
@@ -131,6 +158,7 @@ var dropbox = {
         
         $.ajax({
             type: params.method,
+            dataType: params.dataType,
             url: params.url,
             data: OAuth.getParameterMap(message.parameters),
             success: params.success,

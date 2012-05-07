@@ -19,13 +19,16 @@
           </label>
       </p>
       <p>
-          <input type="submit" id="auth" value="Setup"/>
+          <input type="submit" id="auth" value="Setup & Get Request Token"/>
       </p>
     </form>
     <ol>
         <li id="step1" class="step"><a href="#" id="auth_url" target="_blank">Authorize</a></li>
-        <li id="step2" class="step"><a href="javascript:void(0);" id="access">getAccessToken</a></li>
-        <li id="step3" class="step"><a href="javascript:void(0);" id="account">Get Account Info</a></li>
+        <li id="step2" class="step"><a href="javascript:void(0);" id="access">Get Access Token</a></li>
+        <li id="step3" class="step">
+            <a href="javascript:void(0);" id="account">Get Account Info</a>
+            <a href="javascript:void(0);" id="metadata">Get Metadata</a>
+        </li>
     </ol>
     <ul id="account_info">
     Account Info
@@ -46,12 +49,12 @@
         $(".step, #account_info").hide();
         
         $("#form").submit(function() {
-            var key = $("#key").val(),
-                secret = $("#secret").val();
+            var key = "";//$("#key").val(),
+                secret = "";//$("#secret").val();
             dropbox.setup(key, secret);
             
-            dropbox.getRequestToken(function() {
-                var authUrl = dropbox.getAuthorizeUrl();
+            dropbox.requestToken(function() {
+                var authUrl = dropbox.authorizeUrl();
                 console.log(authUrl);
                 $("#auth_url").attr("href", authUrl);
                 $("#step1").show();
@@ -64,13 +67,13 @@
         });
         
         $("#access").click(function() {
-            dropbox.getAccessToken(function() {
+            dropbox.accessToken(function() {
                 $("#step3").show();
             });
         });
         
         $("#account").click(function() {
-            dropbox.getAccountInfo(function(data) {
+            dropbox.accountInfo(function(data) {
                 var user = eval("(" + data + ")");
                 $("#referral_link").html(user.referral_link);
                 $("#display_name").html(user.display_name);
@@ -80,6 +83,12 @@
                 $("#quota_info_quota").html(user.quota_info.quota);
                 $("#email").html(user.email);
                 $("#account_info").show();
+            });
+        });
+        
+        $("#metadata").click(function() {
+            dropbox.metadata("/", function(data) {
+                
             });
         });
     });
