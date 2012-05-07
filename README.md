@@ -4,8 +4,10 @@ JavaScript library for accessing the Dropbox API over OAuth.
 
 API version: 1
 
+## Example
+[http://irachex.github.com/dropbox-js/example.html](http://irachex.github.com/dropbox-js/example.html)
+
 ## How to Use
-See `index.html` for example.
 #### Step 1
 include these library
 
