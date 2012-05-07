@@ -5,6 +5,7 @@ JavaScript library for accessing the Dropbox API over OAuth.
 API version: 1
 
 ## How to Use
+See `index.html` for example.
 #### Step 1
 include these library
 
@@ -46,9 +47,6 @@ dropbox.getAccountInfo(callbackFunction);
 
 ## Client Methods
 ### getAccountInfo([callback])
-
-
-
 
 
 
