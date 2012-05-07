@@ -5,6 +5,7 @@ JavaScript library for accessing the Dropbox API over OAuth.
 API version: 1
 
 ## How to Use
+see `index.html` for example usage.
 #### Step 1
 include these library
 
