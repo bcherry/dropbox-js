@@ -26,17 +26,17 @@ OAuth is a three step process.
 a) Get a request token
 
 ```javascript
-dropbox.requestToken(callbackFunction);
+dropbox.requestToken();
 ```
 b) User must visit the url to grant authorization to the client
 
 ```javascript
-dropbox.authorizeUrl(callbackUrl);
+dropbox.authorizeUrl();
 ```
 c) Generate our access token
 
 ```javascript
-dropbox.accessToken(callbackFunction);
+dropbox.accessToken();
 ```
 #### Step 3
 Now we can access to the api functionality.
@@ -45,8 +45,11 @@ Now we can access to the api functionality.
 dropbox.accountInfo(callbackFunction);
 ```
 
-## Client Methods
+## Methods
 more detail in [https://www.dropbox.com/developers/reference/api](https://www.dropbox.com/developers/reference/api)
+#### setup(apiKey, apiSecret, [accessType, locale])
+accessType can be "dropbox" or "sandbox"
+
 #### accountInfo([callback, errorCallback])
 #### metadata(path, [callback, errorCallback])
 #### metadata(path, [callback, errorCallback])
