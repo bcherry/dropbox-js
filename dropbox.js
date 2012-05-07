@@ -10,8 +10,9 @@ function parseQueryString(qs) {
 
 var dropbox = {
     API_VERSION: "1",
-    API_SERVER: "https://api.dropbox.com/",
-    AUTH_SERVER: "https://www.dropbox.com/",
+    API_HOST: "https://api.dropbox.com/",
+    API_CONTENT_HOST: "https://api-content.dropbox.com/",
+    AUTH_HOST: "https://www.dropbox.com/",
       
     setup: function(consumerKey, consumerSecret, accessType) {
         this._consumerKey = consumerKey;
@@ -30,6 +31,7 @@ var dropbox = {
         this._request({
             sendAuth: false,
             url: "/oauth/request_token",
+            dataType: "text",
             method: "POST",
             success: function(data) {
                 console.log("request token", data);
@@ -47,7 +49,7 @@ var dropbox = {
     },
     
     authorizeUrl: function(callback) {
-        var url = this.AUTH_SERVER + this.API_VERSION + "/oauth/authorize"
+        var url = this.AUTH_HOST + this.API_VERSION + "/oauth/authorize"
                + "?oauth_token=" + this._requestToken;
         if (callback) {
             url += "&oauth_callback=" + encodeURIComponent(callback);
@@ -62,10 +64,7 @@ var dropbox = {
             sendAuth: false,
             url: "/oauth/access_token",
             method: "POST",
-            data: {
-                oauth_token: this._requestToken,
-                oauth_token_secret: this._requestTokenSecret
-            },
+            dataType: "text",
             success: function(data) {
                 console.log("access token", data);
                 data = parseQueryString(data);
@@ -86,7 +85,6 @@ var dropbox = {
         this._request({
             url: "/account/info",
             method: "GET",
-            dataType: "json",
             success: function(data) {
                 console.log("account info", data);
                 if (callback) {
@@ -103,7 +101,6 @@ var dropbox = {
         this._request({
             url: "/metadata/" + this.root + path ,
             method: "GET",
-            dataType: "json",
             success: function(data) {
                 console.log("metadata", data);
                 if (callback) {
@@ -119,32 +116,68 @@ var dropbox = {
         });
     },
     
-    _request: function(req) {
+    put: function(path, body, callback, errorCallback) {
+        this._request({
+            host: this.API_CONTENT_HOST,
+            url: "/files_put/" + this.root + path,
+            method: "PUT",
+            contentType: "text/plain",
+            headers: {
+                "Content-Length": body.length
+            },
+            data: body,
+            success: function(data) {
+                console.log("file put", data);
+                if (callback) {
+                    callback(data);
+                }
+            },
+            error: function(data) {
+                console.error("file put error", data);
+                if (errorCallback) {
+                    errorCallback(data);
+                }
+            }
+        });
+    },
+    
+    
+    
+    _request: function(options) {
         var requestId = "dropboxjsonp" + (this._requestCounter++);
+        // default options
         params = $.extend({}, {
+            host: this.API_HOST,
+            apiVersion: this.API_VERSION,
             sendAuth: true,
+            headers: {},
             success: $.noop,
-            error: $.noop
-        }, req || {});
-        params.url = this.API_SERVER + this.API_VERSION + params.url;
-
+            error: $.noop,
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded",
+        }, options || {});
         if (params.sendAuth && !this._accessToken) {
            throw "Authenticated method called before authenticating";
         }
-
+        
+        // build url
+        params.url = params.host + params.apiVersion + params.url;
+        
+        // build message
         var message = {
             action: params.url,
             method: params.method,
             parameters: {
                 oauth_consumer_key: this._consumerKey,
                 oauth_signature_method: "HMAC-SHA1",
+                oauth_token: this._requestToken
             }
         };
-        $.extend(message.parameters, params.data);
         if (params.sendAuth) {
             message.parameters.oauth_token = this._accessToken;
         }
         
+        // build accessor
         var accessor = {
             consumerSecret: this._consumerSecret,
             tokenSecret: this._requestTokenSecret
@@ -153,14 +186,22 @@ var dropbox = {
             accessor.tokenSecret = this._accessTokenSecret;
         }
         
+        // generate timestamp and nonce, then sign
         OAuth.setTimestampAndNonce(message);
         OAuth.SignatureMethod.sign(message, accessor);
         
+        // build headers
+        $.extend(params.headers, {
+            "Authorization": OAuth.getAuthorizationHeader("", message.parameters)
+        });
+        
         $.ajax({
+            url: params.url,
             type: params.method,
             dataType: params.dataType,
-            url: params.url,
-            data: OAuth.getParameterMap(message.parameters),
+            contentType: params.contentType,
+            headers: params.headers,
+            data: params.data,
             success: params.success,
             error: params.error
         });

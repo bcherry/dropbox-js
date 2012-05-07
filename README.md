@@ -10,7 +10,7 @@ See `index.html` for example.
 include these library
 
 ```html
- <script src="jquery-1.4.3.js"></script>
+ <script src="jquery-1.7.2.min.js"></script>
  <script src="oauth.js"></script>
  <script src="sha1.js"></script>
  <script src="dropbox.js"></script>
