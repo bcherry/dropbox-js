@@ -46,11 +46,22 @@ dropbox.accountInfo(callbackFunction);
 ```
 
 ## Client Methods
-### accountInfo([callback])
-### metadata([callback])
-
-
-
-
-
+more detail in [https://www.dropbox.com/developers/reference/api](https://www.dropbox.com/developers/reference/api)
+#### accountInfo([callback, errorCallback])
+#### metadata(path, [callback, errorCallback])
+#### metadata(path, [callback, errorCallback])
+#### put(path, body, [callback, errorCallback])
+#### get(path, [callback, errorCallback])
+#### search(path, query, [callback, errorCallback])
+#### shares(path, [callback, errorCallback])
+#### media(path, [callback, errorCallback])
+#### delta(cursor, [callback, errorCallback])
+#### revisions(path, [callback, errorCallback])
+#### restore(path, rev, [callback, errorCallback])
+#### copyRef(path, [callback, errorCallback])
+#### thumbnails(path, format, size, [callback, errorCallback])
+#### cp(root, fromPath, toPath, [callback, errorCallback])
+#### mv(root, fromPath, toPath, [callback, errorCallback])
+#### mkdir(path, [callback, errorCallback])
+#### rm(path, [callback, errorCallback])
 
