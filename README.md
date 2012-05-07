@@ -52,7 +52,6 @@ accessType can be "dropbox" or "sandbox"
 
 #### accountInfo([callback, errorCallback])
 #### metadata(path, [callback, errorCallback])
-#### metadata(path, [callback, errorCallback])
 #### put(path, body, [callback, errorCallback])
 #### get(path, [callback, errorCallback])
 #### search(path, query, [callback, errorCallback])
