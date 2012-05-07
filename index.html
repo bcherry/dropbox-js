@@ -30,7 +30,6 @@
                 <li><a href="javascript:void(0);" id="account">Get Account Info</a></li>
                 <li><a href="javascript:void(0);" id="metadata">Get Metadata</a></li>
                 <li><a href="javascript:void(0);" id="files_put">Put a file</a></li>
-                <li><a href="javascript:void(0);" id="files_get">Get a file</a></li>
             </ul>
         </li>
     </ol>
@@ -53,8 +52,8 @@
         $(".step, #account_info").hide();
         
         $("#form").submit(function() {
-            var key = "";//$("#key").val(),
-                secret = "";//$("#secret").val();
+            var key = "781nqh6qe177s45";//$("#key").val(),
+                secret = "6jy0dpjp2j4jbp4";//$("#secret").val();
             dropbox.setup(key, secret);
             
             dropbox.requestToken(function() {
@@ -78,14 +77,13 @@
         
         $("#account").click(function() {
             dropbox.accountInfo(function(data) {
-                var user = eval("(" + data + ")");
-                $("#referral_link").html(user.referral_link);
-                $("#display_name").html(user.display_name);
-                $("#uid").html(user.uid);
-                $("#quota_info_normal").html(user.quota_info.normal);
-                $("#quota_info_shared").html(user.quota_info.shared);
-                $("#quota_info_quota").html(user.quota_info.quota);
-                $("#email").html(user.email);
+                $("#referral_link").html(data.referral_link);
+                $("#display_name").html(data.display_name);
+                $("#uid").html(data.uid);
+                $("#quota_info_normal").html(data.quota_info.normal);
+                $("#quota_info_shared").html(data.quota_info.shared);
+                $("#quota_info_quota").html(data.quota_info.quota);
+                $("#email").html(data.email);
                 $("#account_info").show();
             });
         });
