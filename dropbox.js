@@ -15,7 +15,7 @@ var dropbox = {
     AUTH_HOST: "https://www.dropbox.com/",
     
     _init: function(consumerKey, consumerSecret, callbackUrl, uid, accessToken, accessTokenSecret, accessType, locale) {
-        if () this._requestCounter = $.now();
+        this._requestCounter = $.now();
         if (consumerKey) this._consumerKey = consumerKey;
         if (consumerSecret) this._consumerSecret = consumerSecret;
         if (callbackUrl) this._callbackUrl = callbackUrl;
