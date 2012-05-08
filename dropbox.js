@@ -28,7 +28,7 @@ var dropbox = {
     },
       
     setup: function(consumerKey, consumerSecret, callbackUrl, accessType, locale) {
-        this._init(consumerKey, consumerKey, callbackUrl, null, null, null, accessType, locale);
+        this._init(consumerKey, consumerSecret, callbackUrl, null, null, null, accessType, locale);
     },
     
     login: function(uid, accessToken, accessTokenSecret, accessType, locale) {
