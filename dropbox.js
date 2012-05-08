@@ -424,11 +424,7 @@ var dropbox = {
     
     _request: function(options) {
         var requestId = "dropboxjsonp" + (this._requestCounter++);
-        // default options
-        if (this.locale) {
-            $.extend(params.data, {locale: this.locale});
-        }
-        
+        // default options        
         params = $.extend({}, {
             host: this.API_HOST,
             apiVersion: this.API_VERSION,
@@ -440,6 +436,9 @@ var dropbox = {
         }, options || {});
         if (params.sendAuth && !this._accessToken) {
            throw "Authenticated method called before authenticating";
+        }
+        if (this.locale && (typeof params == "object")) {
+            $.extend(params.data, {locale: this.locale});
         }
         
         // build url
