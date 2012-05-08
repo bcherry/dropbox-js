@@ -29,7 +29,7 @@ var dropbox = {
         }
     },
   
-    requestToken: function(callback, errorCallback) {
+    requestToken: function(success, error) {
         var that = this;
         this._request({
             sendAuth: false,
@@ -40,20 +40,15 @@ var dropbox = {
                 data = parseQueryString(data);
                 that._requestToken = data.oauth_token;
                 that._requestTokenSecret = data.oauth_token_secret;
-                if (callback) {
-                    callback(data);
+                if (success) {
+                    success(data);
                 }
             },
-            error: function(data) {
-                console.error("request token error", data);
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            error: error
         });
     },
     
-    authorizeUrl: function(callback, errorCallback) {
+    authorizeUrl: function(callback) {
         var url = this.AUTH_HOST + this.API_VERSION + "/oauth/authorize"
                + "?oauth_token=" + this._requestToken;
         if (callback) {
@@ -62,7 +57,7 @@ var dropbox = {
         return url;
     },
     
-    accessToken: function(callback, errorCallback) {
+    accessToken: function(success, error) {
         var that = this;
         console.log(this._requestToken);
         this._request({
@@ -75,60 +70,35 @@ var dropbox = {
                 that._accessToken = data.oauth_token;
                 that._accessTokenSecret = data.oauth_token_secret;
                 that._uid = data.uid;
-                if (callback) {
-                    callback(data);
+                if (success) {
+                    success(data);
                 }
             },
-            error: function(data) {
-                console.error("access token error", data);
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            error: error
         });
     },
     
-    accountInfo: function(callback, errorCallback) {
+    accountInfo: function(success, error) {
         this._request({
             url: "/account/info",
             method: "GET",
             dataType: "json",
-            success: function(data) {
-                console.log("account info", data);
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                console.log("account info error", data);
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    metadata: function(path, callback, errorCallback) {
+    metadata: function(path, success, error) {
         this._request({
             url: "/metadata/" + this.root + path ,
             method: "GET",
             dataType: "json",
-            success: function(data) {
-                console.log("metadata", data);
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                console.error("metadata error", data);
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    put: function(path, body, callback, errorCallback) {
+    put: function(path, body, success, error) {
         this._request({
             host: this.API_CONTENT_HOST,
             url: "/files_put/" + this.root + path,
@@ -139,40 +109,22 @@ var dropbox = {
                 "Content-Length": body.length
             },
             data: body,
-            success: function(data) {
-                console.log("file put", data);
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                console.error("file put error", data);
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    get: function(path, callback, errorCallback) {
+    get: function(path, success, error) {
         this._request({
             host: this.API_CONTENT_HOST,
             url: "/files/" + this.root + path,
             method: "GET",
-            success: function(data) {
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    search: function(path, query, callback, errorCallback) {
+    search: function(path, query, success, error) {
         this._request({
             url: "/search/" + this.root + path,
             method: "GET",
@@ -180,59 +132,32 @@ var dropbox = {
             data: {
                 query: query
             },
-            success: function(data) {
-                console.log("search", data);
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    shares: function(path, callback, errorCallback) {
+    shares: function(path, success, error) {
         this._request({
             url: "/shares/" + this.root + path,
             method: "POST",
             dataType: "json",
-            success: function(data) {
-                console.log("shares", data);
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    media: function(path, callback, errorCallback) {
+    media: function(path, success, error) {
         this._request({
             url: "/media/" + this.root + path,
             method: "POST",
             dataType: "json",
-            success: function(data) {
-                console.log("media", data);
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    delta: function(cursor, callback, errorCallback) {
+    delta: function(cursor, success, error) {
         this._request({
             url: "/delta",
             method: "POST",
@@ -240,39 +165,22 @@ var dropbox = {
             data: {
                 cursor: cursor
             },
-            success: function(data) {
-                console.log("delta", data);
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    revisions: function(path, callback, errorCallback) {
+    revisions: function(path, success, error) {
         this._request({
             url: "/revisions/" + this.root + path,
             method: "GET",
             dataType: "json",
-            success: function(data) {
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    restore: function(path, rev, callback, errorCallback) {
+    restore: function(path, rev, success, error) {
         this._request({
             url: "/restore/" + this.root + path,
             method: "POST",
@@ -280,38 +188,22 @@ var dropbox = {
             data: {
                 rev: rev
             },
-            success: function(data) {
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    copyRef: function(path, callback, errorCallback) {
+    copyRef: function(path, success, error) {
         this._request({
             url: "/copy_ref/" + this.root + path,
             method: "GET",
             dataType: "json",
-            success: function(data) {
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    thumbnails: function(path, format, size, callback, errorCallback) {
+    thumbnails: function(path, format, size, success, error) {
         this._request({
             url: "/thumbnails/" + this.root + path,
             method: "GET",
@@ -319,20 +211,12 @@ var dropbox = {
                 format: format,
                 size: size  
             },
-            success: function(data) {
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    cp: function(root, fromPath, toPath, callback, errorCallback) {
+    cp: function(root, fromPath, toPath, success, error) {
         this._request({
             url: "/fileops/copy",
             method: "POST",
@@ -342,20 +226,12 @@ var dropbox = {
                 to_path: toPath
             },
             dataType: "json",
-            success: function(data) {
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    mv: function(root, fromPath, toPath, callback, errorCallback) {
+    mv: function(root, fromPath, toPath, success, error) {
         this._request({
             url: "/fileops/move",
             method: "POST",
@@ -365,20 +241,12 @@ var dropbox = {
                 to_path: toPath
             },
             dataType: "json",
-            success: function(data) {
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    mkdir: function(root, path, callback, errorCallback) {
+    mkdir: function(root, path, success, error) {
         this._request({
             url: "/fileops/create_folder",
             method: "POST",
@@ -387,20 +255,12 @@ var dropbox = {
                 path: path
             },
             dataType: "json",
-            success: function(data) {
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
-    rm: function(root, path, callback, errorCallback) {
+    rm: function(root, path, success, error) {
         this._request({
             url: "/fileops/delete",
             method: "POST",
@@ -409,16 +269,8 @@ var dropbox = {
                 path: path
             },
             dataType: "json",
-            success: function(data) {
-                if (callback) {
-                    callback(data);
-                }
-            },
-            error: function(data) {
-                if (errorCallback) {
-                    errorCallback(data);
-                }
-            }
+            success: success,
+            error: error
         });
     },
     
@@ -430,8 +282,6 @@ var dropbox = {
             apiVersion: this.API_VERSION,
             sendAuth: true,
             headers: {},
-            success: $.noop,
-            error: $.noop,
             contentType: "application/x-www-form-urlencoded",
         }, options || {});
         if (params.sendAuth && !this._accessToken) {
@@ -483,8 +333,16 @@ var dropbox = {
             contentType: params.contentType,
             headers: params.headers,
             data: params.data,
-            success: params.success,
-            error: params.error
+            success: function(data) {
+                if (params.success) {
+                    params.success(data);
+                }
+            },
+            error: function(data) {
+                if (params.error) {
+                    params.error(data);
+                }
+            }
         });
     }
 };
