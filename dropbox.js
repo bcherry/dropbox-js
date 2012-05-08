@@ -32,7 +32,6 @@ var dropbox = {
     requestToken: function(success, error) {
         var that = this;
         this._request({
-            sendAuth: false,
             url: "/oauth/request_token",
             method: "POST",
             success: function(data) {
@@ -61,7 +60,6 @@ var dropbox = {
         var that = this;
         console.log(this._requestToken);
         this._request({
-            sendAuth: false,
             url: "/oauth/access_token",
             method: "POST",
             success: function(data) {
@@ -119,6 +117,19 @@ var dropbox = {
             host: this.API_CONTENT_HOST,
             url: "/files/" + this.root + path,
             method: "GET",
+            success: success,
+            error: error
+        });
+    },
+    
+    getRev: function(path, rev, success, error) {
+        this._request({
+            host: this.API_CONTENT_HOST,
+            url: "/files/" + this.root + path,
+            method: "GET",
+            data: {
+                rev: rev
+            },
             success: success,
             error: error
         });
@@ -280,13 +291,9 @@ var dropbox = {
         params = $.extend({}, {
             host: this.API_HOST,
             apiVersion: this.API_VERSION,
-            sendAuth: true,
             headers: {},
             contentType: "application/x-www-form-urlencoded",
         }, options || {});
-        if (params.sendAuth && !this._accessToken) {
-           throw "Authenticated method called before authenticating";
-        }
         if (this.locale && (typeof params == "object")) {
             $.extend(params.data, {locale: this.locale});
         }
@@ -304,7 +311,7 @@ var dropbox = {
                 oauth_token: this._requestToken
             }
         };
-        if (params.sendAuth) {
+        if (this._accessToken) {
             message.parameters.oauth_token = this._accessToken;
         }
         
@@ -313,7 +320,7 @@ var dropbox = {
             consumerSecret: this._consumerSecret,
             tokenSecret: this._requestTokenSecret
         };
-        if (params.sendAuth) {
+        if (this._accessTokenSecret) {
             accessor.tokenSecret = this._accessTokenSecret;
         }
         
