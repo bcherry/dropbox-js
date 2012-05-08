@@ -15,22 +15,16 @@ var dropbox = {
     AUTH_HOST: "https://www.dropbox.com/",
     
     _init: function(consumerKey, consumerSecret, callbackUrl, uid, accessToken, accessTokenSecret, accessType, locale) {
-        this._requestCounter = $.now();
-        this._consumerKey = consumerKey;
-        this._consumerSecret = consumerSecret;
-        this._callbackUrl = callbackUrl;
-        this._uid = uid;
-        this._accessToken = accessToken;
-        this._accessTokenSecret = accessTokenSecret;
-        if (accessType == "dropbox") {
-            this.root = "dropbox";
-        }
-        else {
-            this.root = "sandbox";
-        }
-        if (locale) {
-            this.locale = locale;
-        }
+        if () this._requestCounter = $.now();
+        if (consumerKey) this._consumerKey = consumerKey;
+        if (consumerSecret) this._consumerSecret = consumerSecret;
+        if (callbackUrl) this._callbackUrl = callbackUrl;
+        if (uid) this._uid = uid;
+        if (accessToken) this._accessToken = accessToken;
+        if (accessTokenSecret) this._accessTokenSecret = accessTokenSecret;
+        if (accessType == "dropbox") this.root = "dropbox";
+        else this.root = "sandbox";
+        if (locale) this.locale = locale;
     },
       
     setup: function(consumerKey, consumerSecret, callbackUrl, accessType, locale) {
