@@ -13,11 +13,15 @@ var dropbox = {
     API_HOST: "https://api.dropbox.com/",
     API_CONTENT_HOST: "https://api-content.dropbox.com/",
     AUTH_HOST: "https://www.dropbox.com/",
-      
-    setup: function(consumerKey, consumerSecret, accessType, locale) {
+    
+    _init: function(consumerKey, consumerSecret, callbackUrl, uid, accessToken, accessTokenSecret, accessType, locale) {
+        this._requestCounter = $.now();
         this._consumerKey = consumerKey;
         this._consumerSecret = consumerSecret;
-        this._requestCounter = $.now();
+        this._callbackUrl = callbackUrl;
+        this._uid = uid;
+        this._accessToken = accessToken;
+        this._accessTokenSecret = accessTokenSecret;
         if (accessType == "dropbox") {
             this.root = "dropbox";
         }
@@ -26,6 +30,27 @@ var dropbox = {
         }
         if (locale) {
             this.locale = locale;
+        }
+    },
+      
+    setup: function(consumerKey, consumerSecret, callbackUrl, accessType, locale) {
+        this._init(consumerKey, consumerKey, callbackUrl, null, null, null, accessType, locale);
+    },
+    
+    login: function(uid, accessToken, accessTokenSecret, accessType, locale) {
+        this._init(null, null, null, uid, accessToken, accessTokenSecret, accessType, locale);
+    },
+    
+    getLoginUser: function() {
+        if (this._uid) {
+            return {
+                uid: this._uid,
+                accessToken: this._accessToken,
+                accessTokenSecret: this._accessTokenSecret
+            };
+        }
+        else {
+            return null;
         }
     },
   
@@ -50,6 +75,7 @@ var dropbox = {
     authorizeUrl: function(callback) {
         var url = this.AUTH_HOST + this.API_VERSION + "/oauth/authorize"
                + "?oauth_token=" + this._requestToken;
+        callback = callback || this._callbackUrl;
         if (callback) {
             url += "&oauth_callback=" + encodeURIComponent(callback);
         }
