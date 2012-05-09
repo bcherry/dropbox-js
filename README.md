@@ -47,8 +47,11 @@ dropbox.accountInfo(callbackFunction);
 
 ## Methods
 more detail in [https://www.dropbox.com/developers/reference/api](https://www.dropbox.com/developers/reference/api)
+
 #### setup(apiKey, apiSecret, [accessType, locale])
 accessType can be "dropbox" or "sandbox"
+#### login(token, tokenSecret, [uid])
+#### getToken()
 
 #### accountInfo([success, error])
 #### metadata(path, [success, error])
