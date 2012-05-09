@@ -14,14 +14,14 @@ var dropbox = {
     API_CONTENT_HOST: "https://api-content.dropbox.com/",
     AUTH_HOST: "https://www.dropbox.com/",
     
-    _init: function(consumerKey, consumerSecret, callbackUrl, uid, accessToken, accessTokenSecret, accessType, locale) {
+    _init: function(consumerKey, consumerSecret, callbackUrl, token, tokenSecret, uid, accessType, locale) {
         this._requestCounter = $.now();
         if (consumerKey) this._consumerKey = consumerKey;
         if (consumerSecret) this._consumerSecret = consumerSecret;
         if (callbackUrl) this._callbackUrl = callbackUrl;
+        if (token) this._token = token;
+        if (tokenSecret) this._tokenSecret = tokenSecret;
         if (uid) this._uid = uid;
-        if (accessToken) this._accessToken = accessToken;
-        if (accessTokenSecret) this._accessTokenSecret = accessTokenSecret;
         if (accessType == "dropbox") this.root = "dropbox";
         else this.root = "sandbox";
         if (locale) this.locale = locale;
@@ -31,33 +31,28 @@ var dropbox = {
         this._init(consumerKey, consumerSecret, callbackUrl, null, null, null, accessType, locale);
     },
     
-    login: function(uid, accessToken, accessTokenSecret, accessType, locale) {
-        this._init(null, null, null, uid, accessToken, accessTokenSecret, accessType, locale);
+    login: function(uid, token, tokenSecret) {
+        this._init(null, null, null, token, tokenSecret, uid, null, null);
     },
     
-    getLoginUser: function() {
-        if (this._uid) {
-            return {
-                uid: this._uid,
-                accessToken: this._accessToken,
-                accessTokenSecret: this._accessTokenSecret
-            };
-        }
-        else {
-            return null;
-        }
+    getToken: function() {
+        return {
+            uid: this._uid,
+            token: this._token,
+            tokenSecret: this._tokenSecret
+        };
     },
   
     requestToken: function(success, error) {
-        var that = this;
+        var self = this;
         this._request({
             url: "/oauth/request_token",
             method: "POST",
             success: function(data) {
                 console.log("request token", data);
                 data = parseQueryString(data);
-                that._requestToken = data.oauth_token;
-                that._requestTokenSecret = data.oauth_token_secret;
+                self._token = data.oauth_token;
+                self._tokenSecret = data.oauth_token_secret;
                 if (success) {
                     success(data);
                 }
@@ -68,7 +63,7 @@ var dropbox = {
     
     authorizeUrl: function(callback) {
         var url = this.AUTH_HOST + this.API_VERSION + "/oauth/authorize"
-               + "?oauth_token=" + this._requestToken;
+               + "?oauth_token=" + this._token;
         callback = callback || this._callbackUrl;
         if (callback) {
             url += "&oauth_callback=" + encodeURIComponent(callback);
@@ -77,17 +72,14 @@ var dropbox = {
     },
     
     accessToken: function(success, error) {
-        var that = this;
-        console.log(this._requestToken);
+        var self = this;
         this._request({
             url: "/oauth/access_token",
             method: "POST",
             success: function(data) {
                 console.log("access token", data);
                 data = parseQueryString(data);
-                that._accessToken = data.oauth_token;
-                that._accessTokenSecret = data.oauth_token_secret;
-                that._uid = data.uid;
+                self.login(data.uid, data.oauth_token, data.oauth_token_secret);
                 if (success) {
                     success(data);
                 }
@@ -328,21 +320,15 @@ var dropbox = {
             parameters: {
                 oauth_consumer_key: this._consumerKey,
                 oauth_signature_method: "HMAC-SHA1",
-                oauth_token: this._requestToken
+                oauth_token: this._token
             }
         };
-        if (this._accessToken) {
-            message.parameters.oauth_token = this._accessToken;
-        }
         
         // build accessor
         var accessor = {
             consumerSecret: this._consumerSecret,
-            tokenSecret: this._requestTokenSecret
+            tokenSecret: this._tokenSecret
         };
-        if (this._accessTokenSecret) {
-            accessor.tokenSecret = this._accessTokenSecret;
-        }
         
         // generate timestamp and nonce, then sign
         OAuth.setTimestampAndNonce(message);
