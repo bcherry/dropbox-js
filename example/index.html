@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>My Dropbox by Dropbox JS API</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="css/my-dropbox.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container" id="login">
+        <section id="panel-login">
+            <img src="img/my-dropbox-logo.png" width="442" height="99">
+            <br/><br/>
+            <button type="button" class="btn btn-primary btn-large"
+                id="loginButton">
+                Login
+                <i class="icon-chevron-right icon-white"></i>
+            </button>
+        </section>
+    </div>
+
+    <div class="container" style="display:none;" id="app">
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand">Dropbox JS API</a>
+                    <div id="menu">
+                        <div class="subnav">
+                            <ul class="nav nav-pills pull-right">
+                                <li class="divider-vertical"></li>
+                                <li>
+                                    <a href="#home">
+                                        <i class="icon-home icon-white"></i>
+                                        &nbsp;home
+                                    </a>
+                                </li>
+                                <li class="divider-vertical"></li>
+                                <li>
+                                    <a href="#account">
+                                        <i class="icon-user icon-white"></i>
+                                        &nbsp;account
+                                    </a>
+                                </li>
+                                <li class="divider-vertical"></li>
+                                <li>
+                                    <a href="#logout">
+                                        <i class="icon-off icon-white"></i>
+                                        &nbsp;logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <section id="main">
+        </section>
+    </div>
+
+    <script id="tmpl-upload" type="text/x-template">
+        <div class="modal" id="panel-upload">
+            <div class="modal-header">
+                <button class="close upload-close" type="button">
+                    &times;
+                </button>
+                <h3>Upload Files</h3>
+            </div>
+            <div class="modal-body">
+
+                <div>
+                    <label for="fileselect">Files to upload:</label>
+                    <input type="file" id="fileselect" name="fileselect[]"
+                           multiple="multiple" />
+                    <div id="file-drag">or drop files here</div>
+                </div>
+
+                <ul class="nav nav-tabs nav-stacked" id="upload-list">
+                </ul>
+            </div>
+
+            <div class="modal-footer">
+                <a href="#" class="btn upload-close">Close</a>
+            </div>
+        </div>
+    </script>
+
+    <script id="tmpl-upload-line" type="text/x-template">
+        <li class="active" id="upload-{%id%}">
+            <a>
+                <img id="upload-img-{%id%}" width="18" src="img/{%icon%}48.gif"/>
+                &nbsp;&nbsp;
+                {%file%} - <small> {%size%} </small>
+                <span class="pull-right" id="upload-loading-{%id%}">
+                    <img src=img/loading.gif>
+                </span>
+            </a>
+        </li>
+    </script>
+
+    <script id="tmpl-error" type="text/x-template">
+        <div class="alert alert-error">
+            <button class="close" type="button">
+                &times;
+            </button>
+            <strong>Oh snap!</strong>
+            {%error%}
+        </div>
+    </script>
+
+    <script id="tmpl-panel-account" type="text/x-template">
+        <section id="panel-account">
+        
+           <div class="page-header">
+                <h3>Account</h3>
+            </div>
+
+                <h5>
+                    {%display_name%}
+                </h5>
+               <h6>
+                    {%email%}
+                </h6>
+
+                <div class="progress progress-info">
+                    <div class="bar" id="quota"></div>
+                </div>
+        </section>
+    </script>
+
+    <script id="tmpl-panel-files" type="text/x-template">
+        <section id="panel-files">
+            <div >
+                <a href="#" class="btn btn-primary btn-large pull-right" id="button-upload">
+                <i class=" icon-upload icon-white"></i>
+                    Upload
+                </a>
+            </div>
+            <img src="img/{%icon%}48.gif" class="pull-left img-top" width="36"/>
+            <ul class="breadcrumb" id="breadcrumb">
+            </ul>
+
+            <div class="container">
+                <ul class="nav nav-tabs nav-stacked" id="list">
+                    {%contents%}
+                </ul>
+            </div>
+        </section>
+    </script>
+
+    <script id="tmpl-panel-files-contents" type="text/x-template">
+        <li>
+            <a data-dir="{%is_dir%}" data-path="{%path%}" 
+                data-thumb = {%thumb_exists%} >
+                <img width="25" src="img/{%icon%}48.gif"/>&nbsp;&nbsp;
+                {%path%}
+            </a>
+        </li>
+    </script>
+
+    <script id="tmpl-breadcrumb-path" type="text/x-template">
+        <li>
+            <a href="#" data-path="{%path%}">
+                {%name%}
+            </a>
+            <span class="divider">/</span>
+        </li>
+    </script>
+
+    <script id="tmpl-breadcrumb-current" type="text/x-template">
+       <li class="active">{%name%}</li>
+    </script>
+
+    <script src="js/dropbox-api.min.js"></script>
+    <script src="js/my-dropbox.js"></script>
+    <script>
+
+    window.onload = function() {
+       MyDropbox.init();
+    }
+  </script>
+</body>
+</html>

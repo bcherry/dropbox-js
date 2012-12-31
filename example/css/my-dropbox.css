@@ -1,0 +1,89 @@
+html, body {
+    height:100%;
+    padding:0;
+    margin:0;
+}
+
+#login {
+    height:100%;
+    padding:0;
+    margin:0;
+    width:100%;
+    text-align:center;
+    min-width:780px;/* for mozilla*/
+    background: #3570C7 url(../img/bk-dropbox.png) no-repeat center center fixed;
+    background: url(../img/bk-dropbox.png) no-repeat center center fixed, 
+                -moz-linear-gradient(top, #FFFFFF 0%, #CCCCCC 100%);
+    background: url(../img/bk-dropbox.png) no-repeat center center fixed, 
+                -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(100%,#CCCCCC));
+}
+
+#app {
+    background: #FFF url(../img/bk-dropbox.png) no-repeat center center fixed;
+    
+}
+
+#panel-login {
+    position: absolute;
+    left:50%;
+    top:50%;
+    margin-left:-221px;
+    margin-top: -49px;
+}
+
+#file-drag
+{
+    font-weight: bold;
+    text-align: center;
+    padding: 1em 0;
+    margin: 1em 0;
+    color: #555;
+    border: 1px dashed #ddd;
+    border-radius: 7px;
+    cursor: default;
+}
+
+#file-drag.hover
+{
+    color: #f00;
+    border-color: #f00;
+    border-style: solid;
+    box-shadow: inset 0 3px 4px #888;
+}
+
+#list > li {
+    cursor: pointer;
+}
+
+#main {
+    margin-top:80px;
+}
+
+.img-top {
+    margin-right:20px;
+    margin-left:10px;
+}
+
+#breadcrumb {
+    background-color:  #FFF;
+    
+}
+
+#breadcrumb a , #breadcrumb .divider, #breadcrumb .active {
+    font-size: 26px;
+}
+
+#breadcrumb a , #breadcrumb .divider{
+    
+    color: #222;
+}
+
+.progress {
+    height:40px;
+    text-align: center;
+    
+}
+
+.progress h6 {
+    color: #FFF !important;
+}
